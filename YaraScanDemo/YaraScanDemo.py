@@ -3,9 +3,9 @@ import hashlib
 import csv
 import yara
 
-names=[]
+names=[]#全局变量存储文件名
 
-def get_path(p,x):
+def get_path(p,x):#获取文件绝对路径
     return os.path.join(p,x)
 
 def get_rules(path):#获取并编译目录内的yara规则
@@ -52,21 +52,21 @@ def get_files(paths,filenames):
     except PermissionError:
       print ("无法打开文件夹 "+paths)
        
+def get_csv(paths,filenames):
+    f = open('1.csv','w',encoding='utf-8e')
+    csv_writer = csv.writer(f)
+    csv_writer.writerow(["文件","md5","sha256"])
+    ex =list( map(lambda x:csv_writer.writerow([x,get_md5(x),get_sha256(x)]) ,names))
+    f.close()
 
    
 def main(names):
-    path = 'D:/malware'
+    path = 'D:/malware'#恶意软件目录，可更改
     my_file=get_files(path,[])
     names=list(filter(lambda x:x.endswith(".exe"),names))
-    #print(names)
-    #f = open('1.csv','w',encoding='utf-8e')
-    #csv_writer = csv.writer(f)
-    #csv_writer.writerow(["文件","md5","sha256"])
-    #ex =list( map(lambda x:csv_writer.writerow([x,get_md5(x),get_sha256(x)]) ,names))
-    #f.close()
-    rulepath ="D:/YaraRules"#yara规则目录
+    rulepath ="D:/YaraRules"#yara规则目录，可更改
     yararule=get_rules(rulepath)#得到编译后的规则
-    ex=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件
+    ex=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件得到结果
     print(ex)
 
 
