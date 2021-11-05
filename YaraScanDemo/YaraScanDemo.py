@@ -1,9 +1,8 @@
+from PySide2.QtWidgets import QApplication,QMainWindow,QPushButton,QPlainTextEdit,QLineEdit
 import os
 import hashlib
 import csv
 import yara
-
-names=[]#全局变量存储文件名
 
 def get_path(p,x):#获取文件绝对路径
     return os.path.join(p,x)
@@ -58,19 +57,59 @@ def get_csv(paths,filenames):
     csv_writer.writerow(["文件","md5","sha256"])
     ex =list( map(lambda x:csv_writer.writerow([x,get_md5(x),get_sha256(x)]) ,names))
     f.close()
+names=[];
+def run(path,names):
+   # path = 'D:/malware'#恶意软件目录，可更改
+   if(path=='None'):
+         textEdit.setPlainText('文件路径为空')
+         return 0
+   else: 
+      my_file=get_files(path,[])
+      names=list(filter(lambda x:x.endswith(".exe"),names))
+      rulepath ="D:/YaraRules"#yara规则目录，可更改
+      yararule=get_rules(rulepath)#得到编译后的规则
+      ex=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件得到结果
+      for x in ex:
+          textOut.insertPlainText(x)
 
-   
-def main(names):
-    path = 'D:/malware'#恶意软件目录，可更改
-    my_file=get_files(path,[])
-    names=list(filter(lambda x:x.endswith(".exe"),names))
-    rulepath ="D:/YaraRules"#yara规则目录，可更改
-    yararule=get_rules(rulepath)#得到编译后的规则
-    ex=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件得到结果
-    print(ex)
+     #以上为功能函数
+path='None'
+def pathIn():#获取用户输入的路径
+     global path
+     path = textEdit.text()
+     textEdit.setPlaceholderText('当前扫描文件路径为'+path)
+     textEdit.clear()
+
+def button0_handle():#点击扫描按钮
+    global names
+    run(path,names)
+
+app = QApplication([])
 
 
-if __name__=='__main__':
-    main(names)
-    
-    
+window = QMainWindow()
+window.resize(500,400)
+window.move(300,310)
+window.setWindowTitle('恶意文件扫描')
+
+textEdit=QLineEdit(window)
+textEdit.setPlaceholderText('请输入文件路径')
+textEdit.move(10,25)
+textEdit.resize(300,50)
+textEdit.returnPressed.connect(pathIn)
+
+textOut=QPlainTextEdit(window)
+textOut.setPlaceholderText('扫描结果将在此显示')
+textOut.move(10,200)
+textOut.resize(400,100)
+
+
+button0=QPushButton('扫描',window)#扫描开始
+button0.clicked.connect(button0_handle)
+button0.move(350,350)
+
+
+
+
+window.show()
+app.exec_()
