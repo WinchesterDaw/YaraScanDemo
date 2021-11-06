@@ -51,26 +51,26 @@ def get_files(paths,filenames):
     except PermissionError:
       print ("无法打开文件夹 "+paths)
        
-def get_csv(paths,filenames):
-    f = open('1.csv','w',encoding='utf-8e')
-    csv_writer = csv.writer(f)
-    csv_writer.writerow(["文件","md5","sha256"])
-    ex =list( map(lambda x:csv_writer.writerow([x,get_md5(x),get_sha256(x)]) ,names))
-    f.close()
+#def get_csv(filenames):
+#    f = open('1.csv','w',encoding='utf-8e')
+#    csv_writer = csv.writer(f)
+#    csv_writer.writerow(["文件","md5","sha256"])
+#    ex =list( map(lambda x:csv_writer.writerow([x,get_md5(x),get_sha256(x)]) ,names))
+#    f.close()
 names=[];
 def run(rulepath,path,names):
    # path = 'D:/malware'#恶意软件目录，可更改
    if(path=='None' or rulepath=="None"):
          textEdit.setPlainText('文件路径为空')
-         textEdit.setPlainText('文件路径无效')
+         textEdit.setPlainText('导入路径无效')
          return 0
    else: 
       my_file=get_files(path,[])
       names=list(filter(lambda x:x.endswith(".exe"),names))
       #rulepath ="D:/YaraRules"#yara规则目录，可更改
       yararule=get_rules(rulepath)#得到编译后的规则
-      ex=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件得到结果
-      for x in ex:
+      names=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件得到结果
+      for x in names:
           textOut.insertPlainText(x)
 
      #以上为功能函数
@@ -84,14 +84,17 @@ def pathIn():#获取用户输入的路径
 
 def rulepathIn():#获取用户输入的路径
      global rulepath
-     path = textEdit.text()
-     textEdit.setPlaceholderText('当前导入规则路径为'+path)
-     textEdit.clear()
+     rulepath = textEdit1.text()
+     textEdit1.setPlaceholderText('当前导入规则路径为'+rulepath)
+     textEdit1.clear()
 
 def button0_handle():#点击扫描按钮
     global names
-    run(path,names)
+    run(rulepath,path,names)
 
+def button1_handle():#点击生成csv按钮
+    global names
+    get_csv(names)
 app = QApplication([])
 
 
@@ -121,8 +124,11 @@ textOut.resize(400,100)
 
 button0=QPushButton('扫描',window)#扫描开始
 button0.clicked.connect(button0_handle)
-button0.move(350,350)
+button0.move(250,350)
 
+#button1=QPushButton('生成csv文件',window)#生成恶意文件的哈希值
+#button1.clicked.connect(button1_handle)
+#button1.move(350,350)
 
 
 
