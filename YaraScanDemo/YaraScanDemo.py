@@ -58,26 +58,34 @@ def get_csv(paths,filenames):
     ex =list( map(lambda x:csv_writer.writerow([x,get_md5(x),get_sha256(x)]) ,names))
     f.close()
 names=[];
-def run(path,names):
+def run(rulepath,path,names):
    # path = 'D:/malware'#恶意软件目录，可更改
-   if(path=='None'):
+   if(path=='None' or rulepath=="None"):
          textEdit.setPlainText('文件路径为空')
+         textEdit.setPlainText('文件路径无效')
          return 0
    else: 
       my_file=get_files(path,[])
       names=list(filter(lambda x:x.endswith(".exe"),names))
-      rulepath ="D:/YaraRules"#yara规则目录，可更改
+      #rulepath ="D:/YaraRules"#yara规则目录，可更改
       yararule=get_rules(rulepath)#得到编译后的规则
       ex=list(filter(lambda x:scan(yararule,x),names))#扫描names中的文件得到结果
       for x in ex:
           textOut.insertPlainText(x)
 
      #以上为功能函数
+rulepath='None'
 path='None'
 def pathIn():#获取用户输入的路径
      global path
      path = textEdit.text()
      textEdit.setPlaceholderText('当前扫描文件路径为'+path)
+     textEdit.clear()
+
+def rulepathIn():#获取用户输入的路径
+     global rulepath
+     path = textEdit.text()
+     textEdit.setPlaceholderText('当前导入规则路径为'+path)
      textEdit.clear()
 
 def button0_handle():#点击扫描按钮
@@ -97,6 +105,13 @@ textEdit.setPlaceholderText('请输入文件路径')
 textEdit.move(10,25)
 textEdit.resize(300,50)
 textEdit.returnPressed.connect(pathIn)
+
+textEdit1=QLineEdit(window)
+textEdit1.setPlaceholderText('请输入导入规则路径')
+textEdit1.move(10,85)
+textEdit1.resize(300,50)
+textEdit1.returnPressed.connect(rulepathIn)
+
 
 textOut=QPlainTextEdit(window)
 textOut.setPlaceholderText('扫描结果将在此显示')
